@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class InstanceWidget extends StatefulWidget {
-  const InstanceWidget({Key? key}) : super(key: key);
+  final String Token;
+  const InstanceWidget({Key? key, required this.Token}) : super(key: key);
 
   @override
   _InstanceWidgetState createState() => _InstanceWidgetState();
