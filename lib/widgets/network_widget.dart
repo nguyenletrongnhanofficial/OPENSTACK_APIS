@@ -42,6 +42,10 @@ class _NetworkWidgetState extends State<NetworkWidget> {
   late Map<String, dynamic> networkData;
   late Map<String, dynamic> subnetkData;
   late String networkIdData = "";
+  late String subnetIdData = "";
+  late String networkIdDatanew = "";
+  late String portIdData = "";
+  late Map<String, dynamic> portData;
 
   @override
   void didChangeDependencies() {
@@ -58,6 +62,17 @@ class _NetworkWidgetState extends State<NetworkWidget> {
           "network_id": networkIdData
         }
       ]
+    };
+    portData = {
+      "port": {
+        "admin_state_up": true,
+        "port_security_enabled": false,
+        "security_groups": null,
+        "network_id": networkIdDatanew,
+        "fixed_ips": [
+          {"ip_address": "192.168.11.11", "subnet_id": subnetIdData}
+        ]
+      }
     };
   }
 
@@ -77,6 +92,20 @@ class _NetworkWidgetState extends State<NetworkWidget> {
       if (response.statusCode == 201) {
         String networkId = response.data["network"]["id"];
         networkIdData = networkId;
+        final snackBar = SnackBar(
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          content: AwesomeSnackbarContent(
+            title: 'Network đã được tạo',
+            message: 'Chúc mừng bạn đã tạo network thành công',
+            contentType: ContentType.success,
+          ),
+        );
+
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
 
         try {
           var response = await dio.post(
@@ -95,8 +124,8 @@ class _NetworkWidgetState extends State<NetworkWidget> {
               behavior: SnackBarBehavior.floating,
               backgroundColor: Colors.transparent,
               content: AwesomeSnackbarContent(
-                title: 'Thành công!!!',
-                message: 'Chúc mừng bạn đã tạo network thành công',
+                title: 'Subnet đã được tạo',
+                message: 'Chúc mừng bạn đã tạo Subnet thành công',
                 contentType: ContentType.success,
               ),
             );
@@ -104,6 +133,62 @@ class _NetworkWidgetState extends State<NetworkWidget> {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(snackBar);
+            String subnetId = response.data['subnets'][0]['id'];
+            String networkIdnew = response.data['subnets'][0]['network_id'];
+            subnetIdData = subnetId;
+            networkIdDatanew = networkIdnew;
+            print("NetworkID: " + networkIdDatanew);
+            print("SubnetID: " + subnetIdData);
+
+            try {
+              var response = await dio.post(
+                "$baseUrl/v2.0/ports",
+                data: portData,
+                options: Options(
+                  headers: {
+                    "Content-type": "application/json",
+                    "X-Auth-Token": widget.Token
+                  },
+                ),
+              );
+              if (response.statusCode == 201) {
+                String portId = response.data["port"]["id"];
+                portIdData = portId;
+                print("PostID: " + portIdData);
+
+                final snackBar = SnackBar(
+                  elevation: 0,
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.transparent,
+                  content: AwesomeSnackbarContent(
+                    title: 'Hoàn tất',
+                    message: 'Chúc mừng bạn đã hoàn tất tạo network',
+                    contentType: ContentType.success,
+                  ),
+                );
+
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(snackBar);
+              }
+            } catch (e) {
+              final snackBar = SnackBar(
+                elevation: 0,
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.transparent,
+                content: AwesomeSnackbarContent(
+                  title: 'Tạo network thất bại!!!',
+                  message: 'Vui lòng kiểm tra lại nhen',
+                  contentType: ContentType.failure,
+                ),
+              );
+
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(snackBar);
+
+              print(e);
+            }
           }
         } catch (e) {
           final snackBar = SnackBar(
@@ -131,7 +216,7 @@ class _NetworkWidgetState extends State<NetworkWidget> {
         backgroundColor: Colors.transparent,
         content: AwesomeSnackbarContent(
           title: 'Tạo network thất bại!!!',
-          message: 'Vui lòng kiểm tra lại nhen',
+          message: 'Vui lòng thử lại!!',
           contentType: ContentType.failure,
         ),
       );

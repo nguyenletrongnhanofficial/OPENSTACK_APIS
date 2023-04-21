@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '/providers/list_image_provider.dart';
 import '/providers/list_flavor_provider.dart';
 import '/providers/list_security_group_provider.dart';
+import '/widgets/network_widget.dart';
 
 class InstanceWidget extends StatefulWidget {
   final String Token;
@@ -32,114 +33,6 @@ class _InstanceWidgetState extends State<InstanceWidget> {
   final TextEditingController portIdController = TextEditingController();
   final TextEditingController customScriptController = TextEditingController();
   final dio = Dio();
-
-  // //
-  // late Map<String, dynamic> networkData;
-  // late Map<String, dynamic> subnetkData;
-  // late String networkIdData = "";
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   networkData = {
-  //     "network": {"name": _networkNameController.text, "admin_state_up": true}
-  //   };
-  //   subnetkData = {
-  //     "subnets": [
-  //       {
-  //         "name": _subnetNameController.text,
-  //         "cidr": _networkAddressController.text,
-  //         "ip_version": 4,
-  //         "network_id": networkIdData
-  //       }
-  //     ]
-  //   };
-  // }
-
-  // Future<void> addNetwork() async {
-  //   try {
-  //     var response = await dio.post(
-  //       "$baseUrl/v2.0/networks",
-  //       data: networkData,
-  //       options: Options(
-  //         headers: {
-  //           "Content-type": "application/json",
-  //           "X-Auth-Token": widget.Token
-  //         },
-  //       ),
-  //     );
-
-  //     if (response.statusCode == 201) {
-  //       String networkId = response.data["network"]["id"];
-  //       networkIdData = networkId;
-
-  //       try {
-  //         var response = await dio.post(
-  //           "$baseUrl/v2.0/subnets",
-  //           data: subnetkData,
-  //           options: Options(
-  //             headers: {
-  //               "Content-type": "application/json",
-  //               "X-Auth-Token": widget.Token
-  //             },
-  //           ),
-  //         );
-  //         if (response.statusCode == 201) {
-  //           final snackBar = SnackBar(
-  //             elevation: 0,
-  //             behavior: SnackBarBehavior.floating,
-  //             backgroundColor: Colors.transparent,
-  //             content: AwesomeSnackbarContent(
-  //               title: 'Thành công!!!',
-  //               message: 'Chúc mừng bạn đã tạo network thành công',
-  //               contentType: ContentType.success,
-  //             ),
-  //           );
-
-  //           ScaffoldMessenger.of(context)
-  //             ..hideCurrentSnackBar()
-  //             ..showSnackBar(snackBar);
-  //         }
-  //       } catch (e) {
-  //         final snackBar = SnackBar(
-  //           elevation: 0,
-  //           behavior: SnackBarBehavior.floating,
-  //           backgroundColor: Colors.transparent,
-  //           content: AwesomeSnackbarContent(
-  //             title: 'Tạo network thất bại!!!',
-  //             message: 'Vui lòng kiểm tra lại nhen',
-  //             contentType: ContentType.failure,
-  //           ),
-  //         );
-
-  //         ScaffoldMessenger.of(context)
-  //           ..hideCurrentSnackBar()
-  //           ..showSnackBar(snackBar);
-
-  //         print(e);
-  //       }
-  //     }
-  //   } catch (e) {
-  //     final snackBar = SnackBar(
-  //       elevation: 0,
-  //       behavior: SnackBarBehavior.floating,
-  //       backgroundColor: Colors.transparent,
-  //       content: AwesomeSnackbarContent(
-  //         title: 'Tạo network thất bại!!!',
-  //         message: 'Vui lòng kiểm tra lại nhen',
-  //         contentType: ContentType.failure,
-  //       ),
-  //     );
-
-  //     ScaffoldMessenger.of(context)
-  //       ..hideCurrentSnackBar()
-  //       ..showSnackBar(snackBar);
-
-  //     print(e);
-  //   }
-  // }
-
-  //
 
   @override
   void initState() {
@@ -181,6 +74,79 @@ class _InstanceWidgetState extends State<InstanceWidget> {
       flavors = tempFlavors;
       securityGroups = tempSecurityGroups;
     });
+  }
+
+  late Map<String, dynamic> instanceData;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    instanceData = {
+      "server": {
+        "name": "gr3",
+        "imageRef": "819dc436-a8e1-4b08-8576-91ad1fc9292f",
+        "flavorRef": "02-02-45",
+        "security_groups": [
+          {"name": "default"}
+        ],
+        "networks": [
+          {
+            "uuid": "2c05dss9-1dd6-4xa3-a0fb-e8c4b43689cc",
+            "port": "da79e47b-17e7-4230-a1b3-75fdc0293168"
+          }
+        ],
+        "user_data": "ddb9ba93-7f29-4bd5-b3f0-182688f28560"
+      }
+    };
+  }
+
+  Future<void> addInstance() async {
+    try {
+      print("đã tới");
+      var response = await dio.post(
+        "$baseUrl/v2.1/servers",
+        data: instanceData,
+        options: Options(
+          headers: {
+            "Content-type": "application/json",
+            "X-Auth-Token": widget.Token
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        final snackBar = SnackBar(
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          content: AwesomeSnackbarContent(
+            title: 'Tạo network thất bại!!!',
+            message: 'Vui lòng kiểm tra lại nhen',
+            contentType: ContentType.failure,
+          ),
+        );
+
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
+      }
+    } catch (e) {
+      final snackBar = SnackBar(
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: 'Tạo network thất bại!!!',
+          message: 'Vui lòng thử lại!!',
+          contentType: ContentType.failure,
+        ),
+      );
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
+
+      print(e);
+    }
   }
 
   @override
@@ -261,6 +227,8 @@ class _InstanceWidgetState extends State<InstanceWidget> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
+                didChangeDependencies();
+                addInstance();
                 // Handle the create button press
               },
               child: const Text('Create'),
