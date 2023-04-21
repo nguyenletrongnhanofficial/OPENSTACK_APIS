@@ -21,7 +21,9 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Token app vừa nhận được là: "),
+            Text(
+              "Token app vừa nhận được là: ",
+            ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(widget.Token),
@@ -31,7 +33,9 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => NetworkWidget(),
+                    builder: (context) => NetworkWidget(
+                      Token: widget.Token,
+                    ),
                   ),
                 );
               },
