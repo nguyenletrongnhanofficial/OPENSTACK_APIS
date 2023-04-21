@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import '/widgets/instance_widget.dart';
 
 import '../config/config.dart';
 
@@ -50,6 +51,7 @@ class _NetworkWidgetState extends State<NetworkWidget> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _networkAddressController.text = "192.168.11.0/24";
     networkData = {
       "network": {"name": _networkNameController.text, "admin_state_up": true}
     };
@@ -57,7 +59,8 @@ class _NetworkWidgetState extends State<NetworkWidget> {
       "subnets": [
         {
           "name": _subnetNameController.text,
-          "cidr": _networkAddressController.text,
+          "cidr":
+              _networkAddressController.text, //_networkAddressController.text,
           "ip_version": 4,
           "network_id": networkIdData
         }
@@ -155,6 +158,15 @@ class _NetworkWidgetState extends State<NetworkWidget> {
                 String portId = response.data["port"]["id"];
                 portIdData = portId;
                 print("PostID: " + portIdData);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InstanceWidget(
+                      Token: widget.Token,
+                      portID: portIdData,
+                    ),
+                  ),
+                );
 
                 final snackBar = SnackBar(
                   elevation: 0,

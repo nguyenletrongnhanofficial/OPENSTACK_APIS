@@ -10,11 +10,10 @@ import '/widgets/network_widget.dart';
 
 class InstanceWidget extends StatefulWidget {
   final String Token;
+  final String? portID;
 
-  const InstanceWidget({
-    Key? key,
-    required this.Token,
-  }) : super(key: key);
+  const InstanceWidget({Key? key, required this.Token, this.portID})
+      : super(key: key);
 
   @override
   _InstanceWidgetState createState() => _InstanceWidgetState();
@@ -32,11 +31,13 @@ class _InstanceWidgetState extends State<InstanceWidget> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController portIdController = TextEditingController();
   final TextEditingController customScriptController = TextEditingController();
+
   final dio = Dio();
 
   @override
   void initState() {
     super.initState();
+    portIdController.text = widget.portID.toString();
 
     reloadData();
   }
@@ -86,12 +87,12 @@ class _InstanceWidgetState extends State<InstanceWidget> {
         "imageRef": "819dc436-a8e1-4b08-8576-91ad1fc9292f",
         "flavorRef": "02-02-45",
         "security_groups": [
-          {"name": "default"}
+          {"name": selectedSecurityGroup.toString()}
         ],
         "networks": [
           {
             "uuid": "2c05dss9-1dd6-4xa3-a0fb-e8c4b43689cc",
-            "port": "da79e47b-17e7-4230-a1b3-75fdc0293168"
+            "port": portIdController.text
           }
         ],
         "user_data": "ddb9ba93-7f29-4bd5-b3f0-182688f28560"
@@ -112,16 +113,17 @@ class _InstanceWidgetState extends State<InstanceWidget> {
           },
         ),
       );
+      print(response);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 202) {
         final snackBar = SnackBar(
           elevation: 0,
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.transparent,
           content: AwesomeSnackbarContent(
-            title: 'Tạo network thất bại!!!',
-            message: 'Vui lòng kiểm tra lại nhen',
-            contentType: ContentType.failure,
+            title: 'Tạo Instance thành công',
+            message: 'Chúc mừng bạn đã tạo Instance thành công',
+            contentType: ContentType.success,
           ),
         );
 
@@ -135,7 +137,7 @@ class _InstanceWidgetState extends State<InstanceWidget> {
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.transparent,
         content: AwesomeSnackbarContent(
-          title: 'Tạo network thất bại!!!',
+          title: 'Tạo Instance thất bại!!!',
           message: 'Vui lòng thử lại!!',
           contentType: ContentType.failure,
         ),
@@ -217,7 +219,8 @@ class _InstanceWidgetState extends State<InstanceWidget> {
             const SizedBox(height: 16.0),
             TextField(
               controller: portIdController,
-              decoration: const InputDecoration(labelText: 'Port ID'),
+              decoration: const InputDecoration(
+                  labelText: 'Port ID - Được nhập tự động bởi ứng dụng 😇'),
             ),
             const SizedBox(height: 16.0),
             TextField(
